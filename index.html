@@ -1,1 +1,258 @@
-pansil 
+<!DOCTYPE html>
+<html lang="ha">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BUKAR AI</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0b0f14;
+  color: white;
+}
+
+.app {
+  max-width: 600px;
+  margin: auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  background: #111820;
+  padding: 20px;
+  text-align: center;
+  border-bottom: 1px solid #26313d;
+}
+
+header h1 {
+  margin: 0;
+  color: #4da3ff;
+}
+
+header p {
+  margin: 8px 0 0;
+  color: #aaa;
+}
+
+#chat {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.message {
+  padding: 12px 15px;
+  margin: 10px 0;
+  border-radius: 15px;
+  max-width: 85%;
+  line-height: 1.5;
+}
+
+.user {
+  background: #1769aa;
+  margin-left: auto;
+}
+
+.ai {
+  background: #202933;
+  margin-right: auto;
+}
+
+.bottom {
+  padding: 15px;
+  background: #111820;
+  display: flex;
+  gap: 8px;
+}
+
+input {
+  flex: 1;
+  padding: 14px;
+  border-radius: 25px;
+  border: none;
+  outline: none;
+  font-size: 16px;
+}
+
+button {
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+#send {
+  background: #2196f3;
+  color: white;
+}
+
+#mic {
+  background: #00a86b;
+  color: white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<header>
+  <h1>🤖 BUKAR AI</h1>
+  <p>Hausa Voice Assistant</p>
+</header>
+
+<div id="chat">
+  <div class="message ai">
+    Assalamu alaikum! 👋 Ni ne BUKAR AI. Yaya zan taimaka maka?
+  </div>
+</div>
+
+<div class="bottom">
+  <input id="input" type="text" placeholder="Rubuta saƙonka...">
+  <button id="mic">🎤</button>
+  <button id="send">➤</button>
+</div>
+
+</div>
+
+<script>
+
+const input = document.getElementById("input");
+const chat = document.getElementById("chat");
+const send = document.getElementById("send");
+const mic = document.getElementById("mic");
+
+function addMessage(text, type) {
+  const div = document.createElement("div");
+  div.className = "message " + type;
+  div.textContent = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function speak(text) {
+  if ("speechSynthesis" in window) {
+    const voice = new SpeechSynthesisUtterance(text);
+    voice.lang = "ha-NG";
+    voice.rate = 0.9;
+    speechSynthesis.cancel();
+    speechSynthesis.speak(voice);
+  }
+}
+
+function answer(text) {
+
+  let t = text.toLowerCase();
+  let reply = "";
+
+  if (t.includes("sannu") || t.includes("hello")) {
+    reply = "Sannu! Barka da zuwa BUKAR AI.";
+  }
+
+  else if (t.includes("assalamu alaikum")) {
+    reply = "Wa alaikumus salam wa rahmatullahi wa barakatuh.";
+  }
+
+  else if (t.includes("waye kai") || t.includes("wanene kai")) {
+    reply = "Ni BUKAR AI ne, Hausa voice assistant.";
+  }
+
+  else if (t.includes("yaya kake")) {
+    reply = "Alhamdulillah, ina lafiya. Kai fa?";
+  }
+
+  else if (t.includes("sunanka")) {
+    reply = "Sunana BUKAR AI.";
+  }
+
+  else if (t.includes("na gode") || t.includes("nagode")) {
+    reply = "Babu komai. Ina farin cikin taimaka maka.";
+  }
+
+  else {
+    reply = "Na ji saƙonka. Amma wannan sigar BUKAR AI tana da amsoshi na farko ne kawai.";
+  }
+
+  addMessage(reply, "ai");
+  speak(reply);
+}
+
+function sendMessage() {
+
+  const text = input.value.trim();
+
+  if (!text) return;
+
+  addMessage(text, "user");
+
+  input.value = "";
+
+  setTimeout(() => {
+    answer(text);
+  }, 400);
+}
+
+send.addEventListener("click", sendMessage);
+
+input.addEventListener("keydown", function(e) {
+  if (e.key === "Enter") {
+    sendMessage();
+  }
+});
+
+const SpeechRecognition =
+  window.SpeechRecognition ||
+  window.webkitSpeechRecognition;
+
+if (SpeechRecognition) {
+
+  const recognition = new SpeechRecognition();
+
+  recognition.lang = "ha-NG";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  mic.addEventListener("click", () => {
+    recognition.start();
+    mic.textContent = "🔴";
+  });
+
+  recognition.onresult = function(event) {
+
+    const text =
+      event.results[0][0].transcript;
+
+    input.value = text;
+
+    mic.textContent = "🎤";
+
+    sendMessage();
+  };
+
+  recognition.onerror = function() {
+    mic.textContent = "🎤";
+  };
+
+  recognition.onend = function() {
+    mic.textContent = "🎤";
+  };
+
+} else {
+
+  mic.addEventListener("click", () => {
+    alert("Browser ɗinka baya goyon bayan microphone.");
+  });
+
+}
+
+</script>
+
+</body>
+  </html>
